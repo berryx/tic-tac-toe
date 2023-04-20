@@ -41,7 +41,6 @@ const gameController = (() => {
         if (!gameBoard.getField(index)) {
             gameBoard.setField(index, currentPlayer.getSign());
             if (checkWinner()) {
-                console.log(`${currentPlayer.getName()} won`);
                 displayController.displayResult(currentPlayer);
             }
             nextPlayer();
@@ -51,7 +50,6 @@ const gameController = (() => {
         if (_round === 9) {
             displayController.displayResult("tie");
         }
-        console.log(_round);
     };
 
     const nextPlayer = () => {
@@ -102,6 +100,8 @@ const displayController = (() => {
             _playerOne.classList.remove("playing");
         }
 
+        console.log(currentPlayer.getName());
+
     };
 
     const updateBoard = () => {
@@ -118,6 +118,9 @@ const displayController = (() => {
     const nextRound = (e) => {
         gameController.resetGame();
         updateBoard();
+        for(let box of _boxes){
+            box.classList.remove("x", "o");
+        }
 
         _resultTemplate.classList.remove("flex");
         _resultTemplate.classList.add("hidden");
