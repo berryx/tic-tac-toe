@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.box {
+    @apply flex items-center justify-center w-32  h-32 bg-box shadow shadow-black rounded-b  text-8xl  hover:bg-amber-950 cursor-pointer
+}
+
+.x {
+    @apply text-x
+}
+
+.o {
+    @apply text-o
+}
+
+.playing {
+    @apply shadow-md shadow-white bg-currentPlayer
+}
+
+.resultAnim {
+    animation-duration: 0.5s;
+    animation-name: animate-fade;
+    animation-fill-mode: backwards;
+    animation-timing-function: ease-out;
+}
+
+@keyframes animate-fade {
+    0%{
+        @apply left-full;
+    }
+    100%{
+        @apply left-0;
+    }
+}
