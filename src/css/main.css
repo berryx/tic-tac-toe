@@ -30,6 +30,6 @@
         @apply left-full;
     }
     100%{
-        @apply left-0;
+        @apply left-[calc(50%-384px/2)];
     }
 }

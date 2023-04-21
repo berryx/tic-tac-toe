@@ -1,5 +1,4 @@
 import './css/main.css';
-import {logPlugin} from '@babel/preset-env/lib/debug';
 
 const Player = (sign, name) => {
 
@@ -13,18 +12,32 @@ const Player = (sign, name) => {
 
 const gameBoard = (() => {
     let _board = new Array(9);
+
     const getField = (index) => _board[index];
     const setField = (index, sign) => _board[index] = sign;
     const reset = () => _board = new Array(9);
 
-    const showBoard = () => _board.join('-');
+    const getBoard = () => _board;
 
-    return {getField, setField, reset, showBoard};
+    const getEmptyField = () => {
+        let currentBoard = gameBoard.getBoard();
+
+        let emptyField = [];
+
+        for (let i = 0; i < 9; i++) {
+            if (currentBoard[i] === null || currentBoard[i] === undefined) {
+                emptyField.push(i);
+            }
+        }
+        return emptyField;
+    };
+
+    return {getField, setField, reset, getBoard, getEmptyField};
 })();
 
 const gameController = (() => {
     const playerX = Player('X', 'Player 1');
-    const playerY = Player('O', 'Player 2');
+    let player0;
     let _round = 0;
 
     let currentPlayer = playerX;
@@ -33,9 +46,15 @@ const gameController = (() => {
         [0, 3, 6], [1, 4, 7], [2, 5, 8],
         [0, 4, 8], [6, 4, 2]
     ];
-    const init = () => {
+
+    const init = (playerSelect) => {
+        if(playerSelect === "ai"){
+            player0 = aiController.getAiPlayer();
+        } else if(playerSelect === "human"){
+            player0 = Player("O", "Player 2")
+        }
         displayController.updatePlayerElement(currentPlayer);
-    };
+    }
     const playerRound = (index) => {
 
         if (!gameBoard.getField(index)) {
@@ -47,13 +66,16 @@ const gameController = (() => {
             displayController.updatePlayerElement(currentPlayer);
         }
         _round++;
-        if (_round === 9) {
+        if (_round === 9 && !checkWinner()) {
             displayController.displayResult("tie");
         }
     };
 
     const nextPlayer = () => {
-        currentPlayer === playerX ? currentPlayer = playerY : currentPlayer = playerX;
+        currentPlayer === playerX ? currentPlayer = player0 : currentPlayer = playerX;
+        if(currentPlayer.getName() === "ai" && !checkWinner()){
+            playerRound(aiController.aiPlay());
+        }
     };
 
     const resetGame = () => {
@@ -83,12 +105,22 @@ const displayController = (() => {
     let _playerTwo = document.getElementById("playerTwo");
     let _resultTemplate = document.getElementById("resultScreen").content.cloneNode(true).firstElementChild;
 
-    _boxes.forEach((box) => {
-        box.addEventListener("click", e => {
-            gameController.playerRound(box.dataset.index);
-            updateBoard();
+    const initMenu = () => {
+        displayTitleScreen();
+    }
+    const initGame = (playerSelect) => {
+        displayController.enableBoard();
+        if(playerSelect === "ai"){
+            _playerTwo.textContent = playerSelect.toUpperCase();
+        }
+        gameController.init(playerSelect);
+    };
+
+    const enableBoard = () => {
+        _boxes.forEach((box) => {
+            box.addEventListener("click", interactiveBox);
         });
-    });
+    };
 
     const updatePlayerElement = (currentPlayer) => {
 
@@ -99,9 +131,6 @@ const displayController = (() => {
             _playerTwo.classList.add("playing");
             _playerOne.classList.remove("playing");
         }
-
-        console.log(currentPlayer.getName());
-
     };
 
     const updateBoard = () => {
@@ -118,7 +147,10 @@ const displayController = (() => {
     const nextRound = (e) => {
         gameController.resetGame();
         updateBoard();
-        for(let box of _boxes){
+        for (let box of _boxes) {
+            box.addEventListener("click", interactiveBox);
+        }
+        for (let box of _boxes) {
             box.classList.remove("x", "o");
         }
 
@@ -129,15 +161,20 @@ const displayController = (() => {
 
     const displayResult = (winner) => {
 
+        _boxes.forEach((box) => {
+            box.removeEventListener("click", interactiveBox);
+        });
+
+
         let winnerName = _resultTemplate.querySelector("#winner");
         let title = _resultTemplate.querySelector("h2");
         let nextRoundBtn = _resultTemplate.querySelector("#nextRound");
 
-        if(winner === "tie"){
-            title.textContent = "It's a tie !"
-           winnerName.textContent = "Try again ?";
-        }else{
-            title.textContent = "The winner is"
+        if (winner === "tie") {
+            title.textContent = "It's a tie !";
+            winnerName.textContent = "Try again ?";
+        } else {
+            title.textContent = "The winner is";
             winnerName.textContent = winner.getName();
         }
 
@@ -150,8 +187,36 @@ const displayController = (() => {
         main.appendChild(_resultTemplate);
     };
 
-    return {displayResult, updatePlayerElement, updateBoard};
+    const interactiveBox = (e) => {
+        gameController.playerRound(e.currentTarget.dataset.index);
+        updateBoard();
+    };
+
+    const displayTitleScreen = () => {
+        const titleScreen = document.getElementById("mainMenu").content.cloneNode(true).firstElementChild;
+        const newGameBtn = titleScreen.querySelector('#newGameBtn');
+        const playerSelect = titleScreen.querySelector("#playerSelect");
+        console.log();
+        newGameBtn.addEventListener("click", (e) => {
+            document.body.removeChild(titleScreen);
+            initGame(playerSelect.options[playerSelect.selectedIndex].value);
+        })
+        document.body.appendChild(titleScreen);
+    };
+
+    return {initMenu, initGame, displayResult, updatePlayerElement, updateBoard, enableBoard};
 })();
 
+const aiController = (() => {
+    const _aiPlayer = Player("O", "ai");
 
-gameController.init();
+    const getAiPlayer = () => _aiPlayer;
+
+    const aiPlay = () => {
+        let emptyIndex = gameBoard.getEmptyField();
+        return emptyIndex[Math.floor(Math.random() * emptyIndex.length)];
+    };
+    return {aiPlay, getAiPlayer};
+})();
+
+displayController.initMenu();
