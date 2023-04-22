@@ -25,7 +25,7 @@
 	</div>
 
 
-	<div class="grid grid-cols-3 justify-center w-94 h-96 gap-4 ">
+	<div class="grid grid-cols-3 justify-center gap-4 ">
 		<div class="box" data-index="0"></div>
 		<div class="box" data-index="1"></div>
 		<div class="box" data-index="2"></div>
@@ -36,6 +36,7 @@
 		<div class="box" data-index="7"></div>
 		<div class="box" data-index="8"></div>
 	</div>
+	<button class="bg-player hover:bg-currentPlayer text-white p-2" id="resetBtn">Reset Game</button>
 
 </main>
 <template id="resultScreen">
@@ -51,17 +52,11 @@
 	<div class="absolute left-0 top-0 bottom-0 right-0 bg-body w-full h-full z-50 flex flex-col items-center "
 	     id="titleScreen">
 		<header>
-			<h1 class="text-7xl font-semibold text-header-title mt-14">Tic-Tac-Toe</h1>
+			<h1 class="text-7xl font-semibold text-header-title mt-14 drop-shadow">Tic-Tac-Toe</h1>
 		</header>
-		<div class="absolute top-1/3 flex flex-col gap-10">
-			<fieldset class="flex flex-col items-center  gap-3">
-				<label for="playerSelect" class="font-semibold">Choose an opponent: </label>
-				<select id="playerSelect" name="player" class="p-2 text-center">
-					<option value="human">Human player</option>
-					<option value="ai">AI player</option>
-				</select>
-			</fieldset>
-			<button class="bg-header-title p-4 rounded" id="newGameBtn">START</button>
+		<div class="absolute top-1/3 flex gap-10">
+			<button class="bg-header-title p-4 min-w-[11rem] rounded pulse" id="human">Human VS Human</button>
+			<button class="bg-header-title p-4 min-w-[11rem] rounded pulse" id="ai">Human VS AI</button>
 		</div>
 
 	</div>

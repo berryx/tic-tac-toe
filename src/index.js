@@ -48,13 +48,13 @@ const gameController = (() => {
     ];
 
     const init = (playerSelect) => {
-        if(playerSelect === "ai"){
+        if (playerSelect === "ai") {
             player0 = aiController.getAiPlayer();
-        } else if(playerSelect === "human"){
-            player0 = Player("O", "Player 2")
+        } else if (playerSelect === "human") {
+            player0 = Player("O", "Player 2");
         }
         displayController.updatePlayerElement(currentPlayer);
-    }
+    };
     const playerRound = (index) => {
 
         if (!gameBoard.getField(index)) {
@@ -73,7 +73,7 @@ const gameController = (() => {
 
     const nextPlayer = () => {
         currentPlayer === playerX ? currentPlayer = player0 : currentPlayer = playerX;
-        if(currentPlayer.getName() === "ai" && !checkWinner()){
+        if (currentPlayer.getName() === "ai" && !checkWinner()) {
             playerRound(aiController.aiPlay());
         }
     };
@@ -104,16 +104,22 @@ const displayController = (() => {
     let _playerOne = document.getElementById("playerOne");
     let _playerTwo = document.getElementById("playerTwo");
     let _resultTemplate = document.getElementById("resultScreen").content.cloneNode(true).firstElementChild;
+    let _resetBtn = document.getElementById("resetBtn");
+
 
     const initMenu = () => {
         displayTitleScreen();
-    }
+    };
     const initGame = (playerSelect) => {
         displayController.enableBoard();
-        if(playerSelect === "ai"){
+        if (playerSelect === "ai") {
             _playerTwo.textContent = playerSelect.toUpperCase();
         }
         gameController.init(playerSelect);
+
+        _resetBtn.onclick = nextRound;
+        let parent = _boxes[0].parentElement;
+        _resetBtn.style.marginLeft = `${(parent.offsetWidth -_resetBtn.offsetWidth).toString()}px`;
     };
 
     const enableBoard = () => {
@@ -194,14 +200,19 @@ const displayController = (() => {
 
     const displayTitleScreen = () => {
         const titleScreen = document.getElementById("mainMenu").content.cloneNode(true).firstElementChild;
-        const newGameBtn = titleScreen.querySelector('#newGameBtn');
         const playerSelect = titleScreen.querySelector("#playerSelect");
+        const playHumanBtn = titleScreen.querySelector("#human");
+        const playAiBtn = titleScreen.querySelector("#ai");
         console.log();
-        newGameBtn.addEventListener("click", (e) => {
-            document.body.removeChild(titleScreen);
-            initGame(playerSelect.options[playerSelect.selectedIndex].value);
-        })
-        document.body.appendChild(titleScreen);
+        playHumanBtn.addEventListener("click", (e) => {
+            document.body.querySelector("main").removeChild(titleScreen);
+            initGame("human");
+        });
+        playAiBtn.addEventListener("click", (e) => {
+            document.body.querySelector("main").removeChild(titleScreen);
+            initGame("ai");
+        });
+        document.body.querySelector("main").appendChild(titleScreen);
     };
 
     return {initMenu, initGame, displayResult, updatePlayerElement, updateBoard, enableBoard};
